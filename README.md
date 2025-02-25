@@ -19,7 +19,7 @@ TODO list :
 
 ## Note
 
-IMPORTANT : The tool does not yet implement automated full-duplex relaying. It instead depends on the Linxu Kernel to do it for you. Make sure to enable IP forwarding :
+IMPORTANT : The tool does not yet implement automated full-duplex relaying. It instead depends on the Linux Kernel to do it for you. Make sure to enable IP forwarding :
 
 ```bash
 $ sudo sysctl net.ipv4.ip_forward=1
