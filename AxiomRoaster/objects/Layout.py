@@ -119,10 +119,12 @@ class AppLayout():
             content += Text(spn, style="bold green") + Text(f"\t{pwned}\n", style="bold yellow")
         self.layout["Service Principal Names"].update(Panel(content, title="Service Principal Names", style="green"))
 
-    _TICKET_TYPE = Literal["TGS"]
+    _TICKET_TYPE = Literal["TGS", "ASREQ"]
     @staticmethod
     def AddTicket(type: _TICKET_TYPE, principal: str, ticket_str: str):
+        save_file = "kerberoast.out" if type == "TGS" else "asreq-roast.out"
+
         AppLayout._APP_LAYOUT.roasted.append(principal)
-        AppLayout._APP_LAYOUT.tickets.append(ticket_str[:64] + " (saved to roasted.out)\n") # type: ignore
+        AppLayout._APP_LAYOUT.tickets.append(f"[{type}] - {ticket_str[:70]}... (saved to {save_file})\n") # type: ignore
         AppLayout.Update()
 

@@ -14,7 +14,7 @@ How to achieve Kerberoasting with no authentication ?
 - And more… :)
 
 TODO list :
-- Implement AS_REQ roasting for relayed authenticators.
+- Implement AS_REQ roasting for relayed authenticators on etype 23 and 17.
 - Implement self-made full packet relaying, instead or relaying on Linux's kernel doing it for us. This will allow for more control over what we send and block.
 
 ## Note
@@ -66,5 +66,4 @@ $ sudo axiom-roaster --iface eth0 --dcs 192.168.57.15 --targets 192.168.57.20 --
 
 Opening issues or pull requests very much welcome.
 Suggestions welcome as well.
-
 
